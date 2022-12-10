@@ -9,6 +9,68 @@
 
     <h1>Welcome {{ current_user.username }}</h1>
     <a href="{{url_for('logout')}}">Logout</a>
+    <script>
+        // Javascript Stolen partially from https://stackoverflow.com/questions/606191/convert-bytes-to-a-string
+        function DeleteFunction(item) {
+            // console.log(item);
+            const URL = '/DeleteItem'
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', URL);
+            xhr.send(item);
+    }
+        function TestFunction(item) {
+            console.log(item);
+            
+            const URL = '/TestItem'
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', URL);
+            xhr.send(item);
+    }
+    
+        function AddFunction() {
+            console.log("add function called, I think")
+            window.alert("add function called, I think")
+            const itemWord = document.getElementById('searchword').value;
+            const itemURL = document.getElementById('searchURL').value;
+    
+            const data = JSON.stringify({item: itemWord, URL:itemURL})
+            const URL = '/AddItem'
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', URL);
+            xhr.send(data);
+    }
+    
+    </script>
+    
+        <h1> CTRL+F AAS Dashboard </h1>
+    
+        <form id = 'addItem' >
+            <label for="URL">URL:</label>
+            <input type="text" id="searchURL" name="searchURL">
+        
+            <label for="searchword">Search Word/Phrase:</label>
+            <input type="text" id="searchword" value="TEST123" name="searchword">
+        
+            <input type="button" onclick="AddFunction()" value="Add Item" name="Add"/>
+            
+            
+          </form>
+    
+        {% for post in posts %}
+        <div></div>
+            <form>
+            <span name='URLThing' class="badge badge-primary">URL = {{ post['siteURL'] }}</span>
+            <span class="badge badge-primary">SEARCHTERM = {{ post['searchterm'] }}</span>
+            <span class="badge badge-primary">ITMENUMBER = {{ post['ItemNumber'] }}</span>
+            
+                <input type="submit" onclick="DeleteFunction({{ post['ItemNumber'] }})" value='Delete' name="Delete"/>
+                <input type="submit" onclick="TestFunction({{ post['ItemNumber'] }})" value="Test" name="Test" />
+            </form>
+            <hr>
+            
+        {% endfor %}
+        
+        <h2>TEST</h2>
 
     {% else %}
 
@@ -16,4 +78,6 @@
     
     {% endif %}
 </div>
+
+
 {% endblock %}
