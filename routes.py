@@ -38,6 +38,7 @@ from forms import login_form,register_form
 
 dbclient = boto3.resource("dynamodb")
 searchdatabase = dbclient.Table("searchItems")
+AuthTable = dbclient.Table("email_list")
 
 
 @login_manager.user_loader
@@ -65,6 +66,7 @@ def login():
     if form.validate_on_submit():
         try:
             user = User.query.filter_by(email=form.email.data).first()
+            # put dynamoDB stuff here?
             if check_password_hash(user.pwd, form.pwd.data):
                 login_user(user)
                 return redirect(url_for('index'))
@@ -91,13 +93,24 @@ def register():
             email = form.email.data
             pwd = form.pwd.data
             username = form.username.data
-            
+            # put dynamoDB stuff here?
             newuser = User(
                 username=username,
                 email=email,
                 pwd=bcrypt.generate_password_hash(pwd),
             )
-    
+            #############################
+            pwdhash=bcrypt.generate_password_hash(pwd)
+            response = AuthTable.put_item(
+                Item={
+                    "email": email,
+                    "password": pwd,
+                    "passwordhash": pwdhash,
+                    })
+            print(response) 
+
+
+            #############################
             db.session.add(newuser)
             db.session.commit()
             flash(f"Account Succesfully created", "success")
