@@ -41,6 +41,7 @@ searchdatabase = dbclient.Table("searchItems")
 AuthTable = dbclient.Table("email_list")
 
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -61,27 +62,50 @@ def index():
 
 @app.route("/login/", methods=("GET", "POST"), strict_slashes=False)
 def login():
+    print("login called")
     form = login_form()
 
     if form.validate_on_submit():
+        print('form.validate_on_submit() called')
         try:
-            user = User.query.filter_by(email=form.email.data).first()
-            # put dynamoDB stuff here?
-            if check_password_hash(user.pwd, form.pwd.data):
-                login_user(user)
-                return redirect(url_for('index'))
+            print('try thing entered')
+            user = form.email.data
+            password = form.pwd.data
+            print(user)
+            response = AuthTable.get_item(
+                TableName="email_list",
+                Key={
+                    "email": user
+                })
+            
+            
+            dbpassword = response['Item']['passwordhash']
+            print('dbpassword = ', dbpassword)
+            print('password = ', password)
+
+
+            if check_password_hash(dbpassword, password):
+                print("logging in!!!!!!!!!!!!")
+                resp = scratchpad.query_table('searchItems', 'email', '222222')
+                posts = resp.get('Items')
+                print("No errors before login_user !!!!!!!!!!!!")
+               
+                print("No errors after login_user !!!!!!!!!!!!")
+                return render_template('dashboard.html', posts=posts, user=user)
+
             else:
+                print("check pasword failed")
                 flash("Invalid Username or password!", "danger")
         except Exception as e:
             flash(e, "danger")
-
+            print("except thing happened")
+    print('Right before return render_template()')
     return render_template("auth.html",
         form=form,
         text="Login",
         title="Login",
         btn_action="Login"
         )
-
 
 
 # Register route
@@ -99,8 +123,8 @@ def register():
                 email=email,
                 pwd=bcrypt.generate_password_hash(pwd),
             )
-            #############################
-            pwdhash=bcrypt.generate_password_hash(pwd)
+            ############################# This works
+            pwdhash=bcrypt.generate_password_hash(pwd).decode('utf-8')
             response = AuthTable.put_item(
                 Item={
                     "email": email,
