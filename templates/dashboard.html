@@ -22,7 +22,7 @@
         const itemWord = document.getElementById('searchword').value;
         const itemURL = document.getElementById('searchURL').value;
 
-        const data = JSON.stringify({item: itemWord, URL:itemURL})
+        const data = JSON.stringify({item: itemWord, URL:itemURL, email:"codygula@yahoo.com"})
         const URL = '/AddItem'
         const xhr = new XMLHttpRequest();
         xhr.open('POST', URL);
@@ -32,6 +32,7 @@
 </script>
 
     <h1> CTRL+F AAS Dashboard </h1>
+    <h2>current_user.username = {{ current_user.username }}</h2>
 
     <form id = 'addItem' >
         <label for="URL">URL:</label>
